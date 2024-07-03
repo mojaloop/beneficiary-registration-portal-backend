@@ -1,13 +1,9 @@
 import * as jose from 'jose';
-//import * as fs from 'fs';
-import { promises as fs } from 'fs';
 import { SignJWT } from 'jose';
 import { importPKCS8 } from 'jose'
-import jwt_decode from 'jwt-decode';
-
-
-var jwkToPem = require("jwk-to-pem")
-
+import jwkToPem from "jwk-to-pem";
+import {PRIVATE_KEY} from "../constants";
+import config from "../config";
 
 
 /**
@@ -27,12 +23,12 @@ export const generateJWTToken = async (
   issuer = clientId,
   subject = clientId
 ) => {
-  const header: any = {
+  const header: unknown = {
     alg: 'HS256',
     typ: 'JWT',
   };
 
-  const payload: any = {
+  const payload: unknown = {
     iss: issuer, // The issuer of the JWT token
     sub: subject, // The subject of the JWT token
     aud: audience, // The audience of the JWT token
@@ -40,11 +36,7 @@ export const generateJWTToken = async (
     iat: Math.floor(Date.now() / 1000), // The issuing time of the JWT token in seconds
   };
 
-  const secretKey = process.env.REACT_APP_JWT_SECRET_KEY;
-
-  if (!secretKey) {
-    throw new Error('JWT secret key is not defined in the environment variables');
-  }
+  const secretKey = config.get("backendConfig.REACT_APP_JWT_SECRET_KEY");
 
   /**
    * Base64Url encodes the given input.
@@ -83,7 +75,7 @@ export const generateJWTToken = async (
    * @param {string} secretKey The secret key to use for signing
    * @returns {Promise<string>} The signed JWT token
    */
-  const sign = async (header: any, payload: any, secretKey: string) => {
+  const sign = async (header: unknown, payload: unknown, secretKey: string) => {
     const encodedHeader = base64UrlEncode(JSON.stringify(header));
     const encodedPayload = base64UrlEncode(JSON.stringify(payload));
     const signature = await hmacSha256(`${encodedHeader}.${encodedPayload}`, secretKey);
@@ -114,12 +106,12 @@ export const generateJoseJWTToken = async (
   issuer = clientId,
   subject = clientId
 ) => {
-  const header: any = {
+  const header = {
     alg: 'RS256', // Use RS256 for signing with a private key.
     typ: 'JWT', // The type of the JWT token
   };
 
-  const payload: any = {
+  const payload = {
     iss: issuer, // The issuer of the JWT token
     sub: subject, // The subject of the JWT token
     aud: audience, // The audience of the JWT token
@@ -129,11 +121,7 @@ export const generateJoseJWTToken = async (
     iat: Math.floor(Date.now() / 1000), // The issuing time of the JWT token in seconds
   };
 
-  const secretKey = process.env.JWT_SECRET_KEY;
-
-  if (!secretKey) {
-    throw new Error('JWT secret key is not defined in the environment variables');
-  }
+  const secretKey = config.get("backendConfig.JWT_SECRET_KEY")
 
   // Sign the payload with the private key
   try {
@@ -171,7 +159,7 @@ export const signJWTToken = async (
 ): Promise<string> => {
   try {
     // Read the private key from the environment variables
-    const key = process.env.JWT_PRIVATE_KEY as string;
+    const key = config.get("backendConfig.JWT_PRIVATE_KEY");
 
     if (!key) {
       throw new Error('JWT private key is not defined in the environment variables');
@@ -266,7 +254,7 @@ export const decodeJoseJWTToken = async (jwtToken: string) => {
  */
 export const decodeJWTToken = async (jwtToken: string) => {
   //public key
-  const key = process.env.JWT_PUBLIC_KEY;
+  const key = config.get("backendConfig.JWT_PUBLIC_KEY");
 
   if (!key) {
     throw new Error('JWT secret key is not defined in the environment variables');
@@ -295,14 +283,7 @@ export const decodeJWTToken = async (jwtToken: string) => {
 };
 
 export const extractPrivatePublicKey = async (type: string): Promise<string> => {
-  const Key = process.env.JWT_PRIVATE_KEY;
-
-  if (!Key) {
-    throw new Error('JWT private key is not defined in the environment variables');
-  }
-
-  const privateKeyJWK = JSON.parse(Key);
-
+  const privateKeyJWK = JSON.parse(PRIVATE_KEY);
   const publicPEM = jwkToPem(privateKeyJWK);
   const privatePEM = jwkToPem(privateKeyJWK, { private: true });
 

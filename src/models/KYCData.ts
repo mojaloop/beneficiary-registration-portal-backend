@@ -1,3 +1,5 @@
+import {TKYCData} from "../types/types";
+
 export class KYCData {
     name: string;
     dob: string;
@@ -18,7 +20,7 @@ export class KYCData {
     dependents: number;
     risk_level: string;
   
-    constructor(data: any) {
+    constructor(data: TKYCData) {
       this.name = data.name || '';
       this.dob = data.dob || '';
       this.gender = data.gender || '';

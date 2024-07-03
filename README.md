@@ -1,4 +1,3 @@
-````markdown
 # Beneficiary Registration Portal
 
 Welcome to the Beneficiary Registration Portal! This application is designed to facilitate the registration process for beneficiaries.
@@ -17,7 +16,6 @@ Clone the repository to your local machine using Git:
 ```bash
 git clone https://github.com/mojaloop/beneficiary-registration-portal.git
 ```
-````
 
 ### Frontend (React)
 

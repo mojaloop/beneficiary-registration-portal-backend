@@ -1,3 +1,5 @@
+import {TKycInfo} from "../types/types";
+
 export class KYCInformation {
     sub: string;
     birthdate: string;
@@ -10,7 +12,7 @@ export class KYCInformation {
     email: string;
     picture: string;
   
-    constructor(data: any) {
+    constructor(data: TKycInfo) {
       this.sub = data.sub || '';
       this.birthdate = data.birthdate || '';
       this.address = data.address ? { locality: data.address.locality || '' } : { locality: '' };

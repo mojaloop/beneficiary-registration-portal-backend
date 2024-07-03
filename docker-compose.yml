@@ -1,20 +1,45 @@
 version: '3.8'
 
 services:
-  backend:
+  brp-backend:
+#    image: mojaloop/beneficiary-registration-portal-backend:${BRP_BACKEND_IMAGE_VERSION}
     build:
       context: .
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
-    env_file: .env
+    env_file: .env.example
     environment:
       - HOST=mysql
+    restart: always
     depends_on:
       mysql:
         condition: service_healthy
     networks:
       - my_network
+
+  brp-frontend:
+    build:
+      context: ../beneficiary-registration-portal-frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3007:3007"
+    env_file: .env.example
+    restart: always
+    networks:
+      - my_network
+
+  bms:
+    build:
+      context: ../beneficiary-management-system-svc
+      dockerfile: Dockerfile
+    ports:
+      - "3006:3006"
+    env_file: .env.example
+    restart: always
+    networks:
+      - my_network
+
 
   mysql:
     image: mysql/mysql-server
@@ -36,6 +61,7 @@ services:
       retries: 5
       start_period: 30s
       interval: 10s
+
 
 networks:
   my_network:

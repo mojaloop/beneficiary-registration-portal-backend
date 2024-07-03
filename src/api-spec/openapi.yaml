@@ -1,0 +1,111 @@
+openapi: 3.0.3
+info:
+  title: Beneficiary Registration Portal Backend
+  description: Beneficiary Registration Portal Backend Application
+  version: 1.0.0
+paths:
+  /:
+    get:
+      summary: Health Endpoint
+      operationId: getHealth
+      responses:
+        '200':
+          description: Welcome message
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Token Registration API"
+  /getUserInfo:
+    post:
+      summary: Get and validate user information
+      operationId: getUserInfo
+      description: |
+          Get user info endpoint
+          This endpoint is called by the frontend to get the user information and
+          register a token and account with the payment adapter.
+          The user is verified against the information stored in the Mojaloop SDK
+          and if the information matches, a token and account are registered with
+          the payment adapter and the information is saved to the database.
+          The response will contain the user's name and the token data.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GetUserInfoRequest'
+      responses:
+        '200':
+          description: Successfully retrieved user information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetUserInfoResponse'
+        '400':
+          description: Invalid KYC information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: User details mismatch
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+
+components:
+  schemas:
+    GetUserInfoRequest:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Authorization code.
+          example: "12345"
+        selectedPaymentType:
+          type: string
+          description: Type of the selected payment.
+          example: "credit_card"
+        payeeId:
+          type: string
+          description: Identifier of the payee.
+          example: "payee123"
+      required:
+        - code
+        - selectedPaymentType
+        - payeeId
+
+    GetUserInfoResponse:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the user.
+          example: "John Doe"
+        tokenData:
+          type: object
+          properties:
+            psut:
+              type: string
+              description: User's PSUT.
+              example: "user-123"
+            token:
+              type: string
+              description: User token.
+              example: "token-456"
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message.
+          example: "Error message"

@@ -28,4 +28,4 @@ COPY --from=builder /app/dist/ ./dist/
 ENV NODE_ENV=production
 USER ml-user
 
-CMD ["node", "dist/index.js"]
+CMD ["node", "dist/src/index.js"]
